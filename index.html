@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShadowLurk - Automação para Twitch</title>
+    <link rel="icon" type="image/png" href="ShadowLurk/icons/ShadowLurk_Felipenor.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --twitch-purple: #9146FF;
+            --twitch-purple-hover: #772ce8;
+            --dark-bg: #0e0e10;
+            --card-bg: #18181b;
+            --text-primary: #efeff1;
+            --text-secondary: #adadb8;
+            --accent: #00db84;
+            --warning: #ff6b6b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--twitch-purple) 0%, transparent 70%);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #6441a5 0%, transparent 70%);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: 5s;
+        }
+
+        .orb-3 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            top: 50%;
+            right: 10%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, 50px) scale(1.1); }
+            50% { transform: translate(-30px, 80px) scale(0.9); }
+            75% { transform: translate(-60px, -40px) scale(1.05); }
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            z-index: 10;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .logo {
+            width: 140px;
+            height: 140px;
+            margin-bottom: 2rem;
+            border-radius: 25px;
+            box-shadow: 0 10px 50px rgba(145, 70, 255, 0.5);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: logoFloat 3s infinite ease-in-out;
+        }
+
+        .logo:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 15px 60px rgba(145, 70, 255, 0.7);
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, var(--twitch-purple) 50%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -2px;
+            text-shadow: 0 0 30px rgba(145, 70, 255, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+        }
+
+        .cta-container {
+            margin-bottom: 3rem;
+        }
+
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: linear-gradient(135deg, var(--twitch-purple) 0%, var(--twitch-purple-hover) 100%);
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 700;
+            padding: 1.2rem 3rem;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 30px rgba(145, 70, 255, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-download::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-download:hover::before {
+            left: 100%;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(145, 70, 255, 0.6);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-download:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-github {
+            margin-top: 1.2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .btn-github:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Features Grid */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1100px;
+            margin: 0 auto 4rem;
+            padding: 0 1rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(24, 24, 27, 0.8) 0%, rgba(24, 24, 27, 0.4) 100%);
+            backdrop-filter: blur(10px);
+            padding: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(145, 70, 255, 0.1) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--twitch-purple);
+            box-shadow: 0 15px 40px rgba(145, 70, 255, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.2rem;
+            display: inline-block;
+            filter: drop-shadow(0 0 10px rgba(145, 70, 255, 0.5));
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .feature-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: white;
+        }
+
+        .feature-desc {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .feature-desc strong {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Security Section */
+        .security-section {
+            max-width: 800px;
+            margin: 4rem auto 2rem;
+            padding: 3rem;
+            background: linear-gradient(135deg, rgba(24, 24, 27, 0.9) 0%, rgba(24, 24, 27, 0.6) 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 1s ease-out 0.3s backwards;
+        }
+
+        .security-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+        }
+
+        .security-text {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.15) 0%, rgba(255, 107, 107, 0.05) 100%);
+            border: 2px solid rgba(255, 107, 107, 0.4);
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            line-height: 1.7;
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.2);
+        }
+
+        .warning-box strong {
+            color: var(--warning);
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .warning-box u {
+            color: var(--warning);
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 5rem;
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .creator-link {
+            color: var(--twitch-purple);
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .creator-link:hover {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            color: var(--text-secondary);
+            animation: bounce 2s infinite;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .scroll-indicator:hover {
+            color: var(--twitch-purple);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.8rem;
+                letter-spacing: -1px;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+                padding: 0 1rem;
+            }
+
+            .hero {
+                padding: 1rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+
+            .btn-download {
+                font-size: 1.1rem;
+                padding: 1rem 2rem;
+            }
+
+            .security-section {
+                padding: 2rem 1.5rem;
+                margin: 3rem 1rem 2rem;
+            }
+
+            .security-title {
+                font-size: 1.5rem;
+            }
+
+            .feature-card {
+                padding: 2rem;
+            }
+
+            .gradient-orb {
+                filter: blur(60px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .btn-download {
+                font-size: 1rem;
+                padding: 0.9rem 1.8rem;
+            }
+
+            .security-title {
+                font-size: 1.3rem;
+            }
+
+            .warning-box {
+                font-size: 0.95rem;
+                padding: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <section class="hero">
+        <div class="hero-content">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjG_1T2g1-krau_mnZNqg593x7771aR9hDGeFJ_V9NmjBDz5kOg8mJ2lVB9qG4CRVCs7bvuDBzMNDcy2QU8VSr9_DzpskUah9iGGvct4lnE66dA7v5-Xxw1JHRgtOt5Eqhj29bwjipkIxFiSc1zBS1ryPUHvB1aagXvsNZvETZ0GMq7348_bCwoQ-sgU3AN/s320/ShadowLurk_Felipenor.png" alt="ShadowLurk Logo" class="logo">
+
+            <h1>ShadowLurk</h1>
+            <p class="subtitle">
+                A ferramenta definitiva para espectadores da Twitch.
+                Lurk automático, farm de pontos e downloads de emotes em um só lugar.
+            </p>
+
+            <div class="cta-container">
+                <a href="https://github.com/Felipenor/ShadowLurk" class="btn-download" target="_blank">
+                    <span>⬇️</span>
+                    <span>Baixar Agora</span>
+                </a>
+                <br>
+                <a href="https://github.com/Felipenor/ShadowLurk" class="btn-github" target="_blank">
+                    <span>🔗</span>
+                    <span>Ver código fonte no GitHub</span>
+                </a>
+            </div>
+
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">👻</div>
+                    <h3 class="feature-title">Lurk Automático</h3>
+                    <p class="feature-desc">Nunca perca uma live. A extensão abre automaticamente seus canais favoritos em segundo plano.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💎</div>
+                    <h3 class="feature-title">Farm de Pontos</h3>
+                    <p class="feature-desc">Coleta automática de baús de bônus de pontos de canal. Acumule pontos sem esforço.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3 class="feature-title">Emote Downloader</h3>
+                    <p class="feature-desc">Baixe qualquer emote em alta qualidade segurando <strong>ALT + Clique</strong>.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">Leve e Rápido</h3>
+                    <p class="feature-desc">Otimizado para não pesar no seu navegador, reduzindo a qualidade de vídeo em segundo plano.</p>
+                </div>
+            </div>
+
+            <div class="security-section">
+                <h2 class="security-title">🛡️ 100% Seguro e Código Limpo</h2>
+                <p class="security-text">
+                    O ShadowLurk foi desenvolvido seguindo as melhores práticas de programação (Clean Code).
+                    O código é aberto e transparente, garantindo que você esteja livre de vírus, malwares ou scripts maliciosos.
+                </p>
+
+                <div class="warning-box">
+                    <strong>⚠️ AVISO IMPORTANTE:</strong>
+                    Para sua segurança, baixe o ShadowLurk <u>apenas</u> através dos links oficiais fornecidos neste site ou no repositório oficial do GitHub.
+                    Não nos responsabilizamos por arquivos baixados de terceiros.
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Desenvolvido com 💜 por <a href="https://twitch.tv/felipenor" target="_blank" class="creator-link">Felipenor</a></p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.7;">
+                © 2026 ShadowLurk - Todos os direitos reservados
+            </p>
+        </footer>
+    </section>
+
+</body>
+</html>
