@@ -2,6 +2,15 @@
 
 ShadowLurk é uma extensão de navegador desenvolvida por [**Felipenor**.](https://linkbio.co/felipenor) para automatizar o lurk (assistir streams em segundo plano), coletar pontos de canal e baixar emotes com facilidade.
 
+> [!WARNING]
+> **Correção em andamento**
+>
+> Estou trabalhando em melhorias na funcionalidade de **fechamento automático de lives**.
+>
+> Atualmente, o fechamento automático de lives encerradas e o fechamento da live do canal de origem após uma raid podem não funcionar corretamente.
+>
+> Essas melhorias serão disponibilizadas na próxima atualização da ShadowLurk.
+
 ## ✨ Atualizações Recentes
 
 - Versão atual: `v2.5`.
